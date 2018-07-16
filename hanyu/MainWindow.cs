@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -26,9 +26,6 @@ namespace hanyu
         {
             this.ctlCerts.Enabled = this.ctlRefresh.Enabled = false;
 
-            foreach (ListViewItem item in this.ctlCerts.Items)
-                ((Cert)item.Tag).Dispose();
-
             this.ctlCerts.Items.Clear();
 
             foreach (var cert in Cert.GetCerts())
@@ -39,9 +36,10 @@ namespace hanyu
                     Text = cert.Name
                 };
 
-                item.SubItems.Add(cert.NotBefore.ToString("yyyy-MM-dd"));
-                item.SubItems.Add(cert.NotAfter .ToString("yyyy-MM-dd"));
+                item.SubItems.Add(cert.Type);
+                item.SubItems.Add(cert.NotAfter .ToString("yy-MM-dd"));
                 item.SubItems.Add(cert.Drive);
+                item.SubItems.Add(cert.Ca);
 
                 if (cert.NotAfter < DateTime.Now)
                     item.ForeColor = Color.Red;
@@ -49,7 +47,7 @@ namespace hanyu
                 this.ctlCerts.Items.Add(item);
             }
 
-            this.lstCertCount.Text = this.ctlCerts.Items.Count.ToString();
+            this.ctlCertsListDesc.Text = "설치된 인증서 : " + this.ctlCerts.Items.Count.ToString();
 
             this.ctlCerts.Enabled = this.ctlRefresh.Enabled = true;
         }
@@ -105,7 +103,10 @@ namespace hanyu
 
                 var oldPassword = (string)frm.Tag;
                 if (!cert.CheckPassword(oldPassword))
+                {
                     MessageBox.Show(this, "비밀번호가 일치하지 않습니다.", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                }
 
                 if (frm.ShowDialog("새로운 비밀번호를 입력해주세요") != DialogResult.OK)
                     return;
@@ -122,6 +123,25 @@ namespace hanyu
                     MessageBox.Show(this, "비밀번호를 변경하였습니다!", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
                 else
                     MessageBox.Show(this, "알 수 없는 오류가 발생하였습니다.", this.Text, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+        }
+
+        private void ctlCertMoveTo_Click(object sender, EventArgs e)
+        {
+            if (this.ctlCerts.SelectedItems.Count != 1)
+                return;
+
+            var cert = (Cert)this.ctlCerts.SelectedItems[0].Tag;
+
+            using (var frm = new SelectDrive())
+            {
+                if (frm.ShowDialog(cert.Drive) != DialogResult.OK)
+                    return;
+
+                var newDrive = (string)frm.Tag;
+                cert.MoveTo(newDrive);
+
+                this.RefreshList();
             }
         }
 
@@ -172,6 +192,20 @@ namespace hanyu
 
             cert.Remove();
             this.RefreshList();
+        }
+
+        private void ctlCopyRight_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                try
+                {
+                    Process.Start(new ProcessStartInfo { FileName = "https://github.com/RyuaNerin/Hanyu", UseShellExecute = true }).Dispose();
+                }
+                catch
+                {
+                }
+            }
         }
     }
 }

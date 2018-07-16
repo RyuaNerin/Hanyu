@@ -6,10 +6,10 @@ using System.Runtime.InteropServices;
 // 제어됩니다. 어셈블리와 관련된 정보를 수정하려면
 // 이러한 특성 값을 변경하세요.
 [assembly: AssemblyTitle("하뉴")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("공인인증서 복사, 암호검증/변경 프로그램 (ActiveX 같은거 아님)")]
 [assembly: AssemblyConfiguration("하뉴")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("hanyu")]
+[assembly: AssemblyProduct("하뉴")]
 [assembly: AssemblyCopyright("Copyright (C) 2018, By RyuaNerin")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
