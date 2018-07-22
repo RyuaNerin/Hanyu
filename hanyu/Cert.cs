@@ -67,7 +67,7 @@ namespace hanyu
 
             var der = new List<string>
             {
-                Path.Combine(path, "signCert.der")
+                Path.Combine(path, "signCert.der"),
                 Path.Combine(path, "kmCert.der"),
             };
             var key = new List<string>
