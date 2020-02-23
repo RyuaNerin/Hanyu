@@ -7,7 +7,7 @@
     <ProjectGuid>{DC797556-F01C-49D2-BE7C-9CB8FCED44C2}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>hanyu</RootNamespace>
-    <AssemblyName>하뉴</AssemblyName>
+    <AssemblyName>hanyu</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
