@@ -1,4 +1,4 @@
-﻿// http://thermidor.tistory.com/430
+// http://thermidor.tistory.com/430
 
 using System;
 using System.Text;
@@ -505,31 +505,39 @@ namespace PnPeople.Security
 			}
 		}
 
-		private static uint PaddSet(ref byte[] buffer, uint offset, int blkLen, PADDING paddingType)
-		{
-			uint padLen = 0;
+        private static uint PaddSet(ref byte[] buffer, uint offset, int blkLen, PADDING paddingType)
+        {
+            uint padLen = 0;
 
-			switch (paddingType)
-			{
-				case PADDING.AI_NO_PADDING:
-					if (offset == 0)
-						return 0;
-					else
-						return (uint)CODE.CTR_DATA_LEN_ERROR;
+            switch (paddingType)
+            {
+                case PADDING.AI_NO_PADDING:
+                    if (offset == 0)
+                        return 0;
+                    else
+                        return (uint)CODE.CTR_DATA_LEN_ERROR;
 
-				case PADDING.AI_PKCS_PADDING:
-					padLen = (uint)blkLen - offset;
-					if (padLen == 0) padLen = (uint)blkLen; // 무조건 패딩
-					for (int i = 0; i < (int)padLen; i++)
-						buffer[offset + i] = (byte)padLen;
-					return padLen;
+                case PADDING.AI_PKCS_PADDING:
+                    padLen = (uint)blkLen - offset;
+                    if (padLen <= 0 || padLen > blkLen) // Handle invalid padding length
+                        return (uint)CODE.CTR_DATA_LEN_ERROR;
 
-				default:
-					return (uint)CODE.CTR_FATAL_ERROR;
-			}
-		}
+                    if (offset + padLen > buffer.Length)  // Ensure the buffer is large enough
+                    {
+                        Array.Resize(ref buffer, (int)(offset + padLen));  // Resize buffer if needed
+                    }
 
-		private static uint PaddCheck(ref byte[] buffer, int offset, uint blkLen, PADDING paddingType)
+                    for (int i = 0; i < (int)padLen; i++)
+                        buffer[offset + i] = (byte)padLen;
+                    return padLen;
+
+                default:
+                    return (uint)CODE.CTR_FATAL_ERROR;
+            }
+        }
+
+
+        private static uint PaddCheck(ref byte[] buffer, int offset, uint blkLen, PADDING paddingType)
 		{
 			switch (paddingType)
 			{
@@ -676,9 +684,9 @@ namespace PnPeople.Security
 			uint bufferLen = algoInfo.BufLen;
 			uint PaddByte = 0;
 
-			//	Padding
-			PaddByte = PaddSet(ref algoInfo.Buffer, bufferLen, SEED_BLOCK_LEN, algoInfo.PadType);
-			if (PaddByte > (uint)SEED_BLOCK_LEN) return CODE.CTR_DATA_LEN_ERROR;
+            //	Padding
+            PaddByte = PaddSet(ref algoInfo.Buffer, bufferLen % SEED_BLOCK_LEN, SEED_BLOCK_LEN, algoInfo.PadType);
+            if (PaddByte > (uint)SEED_BLOCK_LEN) return CODE.CTR_DATA_LEN_ERROR;
 
 			if (PaddByte == 0)
 			{
